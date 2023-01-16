@@ -1,0 +1,28 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  height: 200px;
+  background-color: aliceblue;
+}
+
+.content {
+  flex-grow: 1;
+  height: 2000px;
+}
+
+.footer {
+  text-align: center;
+  /* height: 40px; */
+  color: white;
+  background-color: navy;
+}
