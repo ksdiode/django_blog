@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFill
 
 class UserManager(BaseUserManager):
   def create_user(self, user_id, name, email, password=None):
@@ -40,6 +42,12 @@ class User(AbstractBaseUser):
 
   is_active = models.BooleanField('활성', default=True)
   is_admin = models.BooleanField('관리자', default=False)
+  avatar = ProcessedImageField(upload_to='avatar/',
+                              processors=[ResizeToFill(100, 100)],
+                              format='JPEG',
+                              options={'quality': 70}, 
+                              null=True, 
+                              blank=True)
 
   objects = UserManager()
 

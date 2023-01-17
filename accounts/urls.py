@@ -3,7 +3,7 @@ from django.contrib.auth import urls as auth_urls
 from django.urls import path, include
 from .views import *
 
-app_name = 'accounts'
+# app_name = 'accounts'
 
 urlpatterns = [
   path('register/', UserCreateView.as_view(), name='register'),
