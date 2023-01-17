@@ -4,8 +4,24 @@ class IsOwnerOrAdmin(BasePermission):
   def has_object_permission(self, request, view, obj):
     if request.user.is_staff:
       return True
-    return obj.owner == request.user
+    return obj.owner == request.user 
+
+
+class IsSelfOrAdmin(BasePermission):
+  def has_object_permission(self, request, view, obj):
+    if request.user.is_staff:
+      return True
+   
+    return obj == request.user
+
 
 class ReadOnly(BasePermission):
-    def has_permission(self, request, view):
-        return request.method in SAFE_METHODS
+  def has_permission(self, request, view):
+    return request.method in SAFE_METHODS
+
+
+class UserCreateOnly(BasePermission):
+  def has_permission(self, request, view):
+    return request.method == 'POST'
+
+
