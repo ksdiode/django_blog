@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+  <h1>전체 블로그</h1>
+
+  <div class="d-flex justify-content-between my-4">
+    <div>
+      카테고리
+      <select id="category" onchange="changeCategory()">
+        <option>전체</option>
+        {% for c in categories %}
+          <option {% if c.name == category %} selected="selected" {% endif %}>{{c.name}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      총
+      {{paginator.count}}건
+      {{page_obj}}
+    </div>
+  </div>
+  <table class="table">
+    <tr>
+      <th style="width:50px">#</th>
+      <th>제목</th>
+      <th style="width:100px">글쓴이</th>
+      <th style="width:80px">조회수</th>
+      <th style="width:160px">수정일</th>
+    </tr>
+    {% for post in posts%}
+      <tr>
+        <td>{{post.id}}</td>
+        <td>
+          <a href="{% url 'blog:detail' post.id%}">
+            {{post.title}}
+          </a>
+        </td>
+        <td>{{post.owner}}</td>
+        <td>{{post.view_count}}</td>
+        <td>{{post.updated|date:'Y-m-d H:i'}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <div class="d-flex justify-content-between mt-5">
+    <div class="d-flex justify-content-center flex-grow-1">
+      {% bootstrap_pagination page_obj %}
+    </div>
+    <div>
+      <a href="{% url 'blog:create' %}" class="btn btn-primary">
+        <i class="fas fa-edit"></i>
+        글쓰기</a>
+
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    function changeCategory(e) {
+      var select = document.getElementById("category");
+      var value = select.selectedIndex != 0
+        ? select
+          .options[select.selectedIndex]
+          .value
+        : '';
+
+      location.href = '?page={{page}}&category=' + value;
+
+    }
+  </script>
+{% endblock script %}

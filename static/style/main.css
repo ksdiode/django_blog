@@ -32,3 +32,10 @@ body {
   color: white;
   background-color: navy;
 }
+
+a,
+a:visited,
+a:active,
+a:hover {
+  text-decoration: none;
+}

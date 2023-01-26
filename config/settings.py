@@ -48,8 +48,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_bootstrap5",
     'imagekit',
+    'django_summernote',
     'api',
-    'photo',
+    'blog',
 ]
 
 MIDDLEWARE = [
