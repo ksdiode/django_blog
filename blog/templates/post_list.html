@@ -3,7 +3,6 @@
 {% load django_bootstrap5 %}
 
 {% block content %}
-  <h1>전체 블로그</h1>
 
   <div class="d-flex justify-content-between my-4">
     <div>
@@ -25,9 +24,9 @@
     <tr>
       <th style="width:50px">#</th>
       <th>제목</th>
-      <th style="width:100px">글쓴이</th>
-      <th style="width:80px">조회수</th>
-      <th style="width:160px">수정일</th>
+      <th style="width:70px">글쓴이</th>
+      <th style="width:70px">조회수</th>
+      <th style="width:150px">수정일</th>
     </tr>
     {% for post in posts%}
       <tr>

@@ -1,8 +1,9 @@
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import FileResponse
 from accounts.views import OwnerOnlyMixin
-from .models import Post, Category
+from .models import Post, Category, PostAttachFile
 from .forms import PostForm
 
 class PostLV(generic.ListView):
@@ -41,7 +42,18 @@ class PostCV(LoginRequiredMixin, generic.CreateView):
 
   def form_valid(self, form):
     form.instance.owner = self.request.user
-    return super().form_valid(form)
+    result = super().form_valid(form)
+    files = self.request.FILES.getlist('files')
+    for file in files:
+      attachment = PostAttachFile(
+        post = form.instance,
+        file = file,
+        filename = file.name,
+        content_type = file.content_type,
+        size = file.size
+      )
+      attachment.save()
+    return result
 
 
 class PostUV(OwnerOnlyMixin, generic.UpdateView):
@@ -50,9 +62,26 @@ class PostUV(OwnerOnlyMixin, generic.UpdateView):
   # fields = ['title', 'category', 'content']
   form_class = PostForm
 
+
+  def form_valid(self, form):
+    result = super().form_valid(form)
+    files = self.request.FILES.getlist('files')
+    for file in files:
+      attachment = PostAttachFile(
+        post = form.instance,
+        file = file,
+        filename = file.name,
+        content_type = file.content_type,
+        size = file.size
+      )
+      attachment.save()
+    return result
+
+
   def get_success_url(self):
     post = self.get_object()
     return reverse('blog:detail', args=[str(post.id)])
+
 
 
 class PostDelV(OwnerOnlyMixin, generic.DeleteView):
@@ -61,4 +90,12 @@ class PostDelV(OwnerOnlyMixin, generic.DeleteView):
 
   def get(self, *args, **kwargs):
     return self.delete(*args, **kwargs)
+
+
+
+
+def download(request, pk):
+  attachment = PostAttachFile.objects.get(pk=pk)
+  return FileResponse(attachment.file.open(), as_attachment=True, filename=attachment.filename)
+
 

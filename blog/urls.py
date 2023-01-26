@@ -9,4 +9,5 @@ urlpatterns = [
   path('create/', views.PostCV.as_view(), name='create'),
   path('update/<int:pk>/', views.PostUV.as_view(), name='update'),
   path('delete/<int:pk>/', views.PostDelV.as_view(), name='delete'),
+  path('download/<int:pk>', views.download, name='download'),
 ]

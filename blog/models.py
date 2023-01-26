@@ -14,7 +14,7 @@ class Category(models.Model):
 
 
 class Post(models.Model):
-  category = models.ForeignKey(Category, on_delete=models.CASCADE)
+  category = models.ForeignKey(Category, verbose_name='카테고리', on_delete=models.CASCADE)
   title = models.CharField('제목', max_length=300)
   owner = models.ForeignKey(User, related_name='photos', on_delete=models.CASCADE)
   content = models.TextField('내용')
@@ -38,5 +38,17 @@ class Post(models.Model):
     return f'{self.id} {self.title}'
 
 
+
+class PostAttachFile(models.Model):
+  post = models.ForeignKey(Post, related_name='files', on_delete=models.CASCADE)
+  file = models.FileField(upload_to="upload/%Y/%m/%d", blank=True, null=True)
+  filename = models.CharField('파일명', max_length=255)
+  content_type = models.CharField('타입', max_length=255)
+  size = models.IntegerField() 
   
+  class Meta:
+    ordering = ["-id"]
+
+  def __str__(self):
+    return f''
 
