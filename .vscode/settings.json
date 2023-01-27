@@ -11,7 +11,7 @@
   },
   "unibeautify.enabled": true,
   "[django-html]": {
-    "editor.formatOnSave": true,
+    "editor.formatOnSave": false,
     "editor.defaultFormatter": "Glavin001.unibeautify-vscode"
   }
 }

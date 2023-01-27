@@ -1,49 +1,20 @@
 {% extends "base.html" %}
-{% load static %}
 {% load avatar %}
 
 {% block content %}
 
   <h1 class="my-3">{{post.title}}</h1>
 
-  <div class="d-flex justify-content-between pb-2">
+  <div class="d-flex justify-content-between border-bottom pb-2">
     <div class="d-flex align-items-center">
       {% avatar post.owner%}
       <div class="ms-2">{{post.owner.user_id}}</div>
-
-      <div class="ms-3">
-        <span class="me-3">
-          <i class="far fa-eye"></i>
-          {{post.view_count}}
-        </span>
-        {% if is_owner %}
-          <i id="ic-heart" class="far fa-heart text-danger"></i>
-        {% else %}
-          {% if like %}
-            <i id="ic-heart" class="fas fa-heart text-danger" onclick="toggleLike({{post.id}}, this)"></i>
-          {% else %}
-            <i id="ic-heart" class="far fa-heart text-danger" onclick="toggleLike({{post.id}}, this)"></i>
-          {% endif %}
-        {% endif %}
-        {{post.like.count}}
-      </div>
     </div>
     <div>
       <i class="far fa-clock"></i>
       {{post.created | date:'Y-m-d H:i'}}
     </div>
   </div>
-  {% if post.tags.all %}
-    <div class="border-bottom  pb-2">
-      <strong>Tags:</strong>
-      {% for tag in post.tags.all %}
-        <a href="{% url 'blog:post_tag' tag.slug %}" class="link-light text-decoration-none badge bg-secondary">
-          {{tag.name}}
-        </a>
-      {% endfor %}
-    </div>
-  {% endif %}
-
   <div>
     {% for file in post.files.all %}
       <a href="{%url 'blog:download' file.id%}">
@@ -90,7 +61,6 @@
 {% endblock %}
 
 {% block script %}
-  <script src="{% static 'javascript/blog.js' %}"></script>
   <script>
     function deletePost() {
       if (!confirm('삭제할까요?')) 
@@ -99,3 +69,8 @@
     }
   </script>
 {% endblock %}
+
+<button type="button" class="btn btn-primary">
+  <i class="fas fa-check"></i>
+  등록
+</button>

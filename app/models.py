@@ -1,5 +1,5 @@
 from django.db import models
-from taggit.managers import TaggableManager
+# from django.contrib.auth.models import User
 from accounts.models import User
 from django.urls import reverse
 
@@ -19,8 +19,6 @@ class Post(models.Model):
   owner = models.ForeignKey(User, related_name='photos', on_delete=models.CASCADE)
   content = models.TextField('내용')
   view_count = models.IntegerField('조회수', blank=True, default=0)
-  like = models.ManyToManyField(User, related_name='post_likes')
-  tags = TaggableManager('태그들', help_text='태그들을 콤마로 구분하세요') 
 
   created = models.DateTimeField('생성일', auto_now_add = True)
   updated = models.DateTimeField('수정일', auto_now = True)

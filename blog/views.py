@@ -1,8 +1,11 @@
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import FileResponse
 from accounts.views import OwnerOnlyMixin
+from taggit.models import Tag
 from .models import Post, Category, PostAttachFile
 from .forms import PostForm
 
@@ -13,17 +16,34 @@ class PostLV(generic.ListView):
   paginate_by = 10
 
   def get_queryset(self):
-    category = self.request.GET.get('category')
-    if category:
-      return Post.objects.filter(category__name=category)
+    tag_slug = self.kwargs.get('tag')
+    if tag_slug:
+      return Post.objects.filter(tags__name=tag_slug)
     else:
-      return Post.objects.all()
+      category = self.request.GET.get('category')
+      if category:
+        question_list = Post.objects.filter(category__name=category)
+      else:
+        question_list = Post.objects.all()
 
-    
+      keyword = self.request.GET.get('keyword', '')  # 검색어
+
+      if keyword:
+          question_list = question_list.filter(
+              Q(title__icontains=keyword) |   # 제목검색
+              Q(content__icontains=keyword)   # 내용검색              
+          ).distinct()
+      return question_list
+
+
+          
   def get_context_data(self):
     context = super().get_context_data()
+    context['page'] = self.request.GET.get('page', 1)
     context['categories'] = Category.objects.all()
     context['category'] = self.request.GET.get('category')
+    context['keyword'] = self.request.GET.get('keyword', '')
+    context['extra'] = f"category={context['category']}&keyword={context['keyword']}"
     return context
   
 
@@ -31,6 +51,22 @@ class PostDV(generic.DetailView):
   model = Post
   template_name = 'post_detail.html'
   context_object_name = 'post'
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    post = context['post']
+
+    if self.request.user == post.owner :
+      context['is_owner'] = True
+    else:
+      post.view_count += 1
+      post.save()
+      context['is_owner'] = False
+    context['like'] = True if post.like.filter(user_id = self.request.user) else False
+
+    print(self.request.user.id, context['like'], context['is_owner'])
+
+    return context
 
 
 class PostCV(LoginRequiredMixin, generic.CreateView):
@@ -92,10 +128,22 @@ class PostDelV(OwnerOnlyMixin, generic.DeleteView):
     return self.delete(*args, **kwargs)
 
 
-
-
 def download(request, pk):
   attachment = PostAttachFile.objects.get(pk=pk)
   return FileResponse(attachment.file.open(), as_attachment=True, filename=attachment.filename)
+
+
+from django.http import JsonResponse
+
+def post_like(request, id):
+  post = Post.objects.get(pk=id)
+
+  if post.like.filter(user_id = request.user):
+    post.like.remove(request.user)
+  else:
+    post.like.add(request.user)
+
+  return JsonResponse({'result': 'ok', 'count': post.like.count()})
+
 
 
