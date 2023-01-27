@@ -13,4 +13,6 @@ urlpatterns = [
   path('download/<int:pk>', views.download, name='download'),
   path('like/<int:id>/', views.post_like, name='like'),
 
+  # 댓글
+  path('comment/<int:post_id>', views.CommentCV.as_view(), name='comment_create')
 ]

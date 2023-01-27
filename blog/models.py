@@ -16,7 +16,7 @@ class Category(models.Model):
 class Post(models.Model):
   category = models.ForeignKey(Category, verbose_name='카테고리', on_delete=models.CASCADE)
   title = models.CharField('제목', max_length=300)
-  owner = models.ForeignKey(User, related_name='photos', on_delete=models.CASCADE)
+  owner = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
   content = models.TextField('내용')
   view_count = models.IntegerField('조회수', blank=True, default=0)
   like = models.ManyToManyField(User, related_name='post_likes')
@@ -30,11 +30,11 @@ class Post(models.Model):
   class Meta:
     ordering = ["-id"]
 
-  def get_detail_url(self):
-      return reverse("post:detail", args=[str(self.id)])
+  def detail_url(self):
+      return reverse("blog:detail", kwargs={'pk':self.id})
   
-  def get_update_url(self):
-      return reverse("post:update", args=[str(self.id)])
+  def update_url(self):
+      return reverse("blog:update", kwargs={'pk':self.id})
   
   def __str__(self):
     return f'{self.id} {self.title}'
@@ -53,4 +53,49 @@ class PostAttachFile(models.Model):
 
   def __str__(self):
     return f''
+
+
+
+
+class Comment(models.Model):
+  post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
+  owner = models.ForeignKey(User, on_delete=models.CASCADE)
+  content = models.TextField('내용')
+  
+  created = models.DateTimeField('생성일', auto_now_add = True)
+  updated = models.DateTimeField('수정일', auto_now = True)
+  
+  class Meta:
+    ordering = ["-id"]
+
+  def get_detail_url(self):
+      return reverse("blog:detail", args=[str(self.id)])
+  
+  def get_update_url(self):
+      return reverse("blog:update", args=[str(self.id)])
+  
+  def __str__(self):
+    return f'{self.content}'
+
+
+class Reply(models.Model):
+  post = models.ForeignKey(Post, on_delete=models.CASCADE)
+  comment = models.ForeignKey(Comment, related_name='replies', on_delete=models.CASCADE)
+  owner = models.ForeignKey(User, on_delete=models.CASCADE)
+  content = models.TextField('내용')
+  
+  created = models.DateTimeField('생성일', auto_now_add = True)
+  updated = models.DateTimeField('수정일', auto_now = True)
+  
+  class Meta:
+    ordering = ["-id"]
+
+  def get_detail_url(self):
+      return reverse("post:detail", args=[str(self.id)])
+  
+  def get_update_url(self):
+      return reverse("post:update", args=[str(self.id)])
+  
+  def __str__(self):
+    return f'{self.content}'
 

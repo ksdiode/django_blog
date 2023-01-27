@@ -1,0 +1,8 @@
+<div>
+  {% for file in post.files.all %}
+    <a href="{%url 'blog:download' file.id%}">
+      <i class="fas fa-file"></i>
+      {{file.filename}}
+    </a>
+  {% endfor %}
+</div>

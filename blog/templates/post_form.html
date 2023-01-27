@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% load avatar%}
+{% load common_template %}
+
 {% block content %}
   <div>
     <h1>
@@ -15,16 +17,8 @@
     <form action="." method="post" class="mt-5" enctype="multipart/form-data">
       {% csrf_token %}
       {% bootstrap_form form %}
-
-      <button type="submit" class="btn btn-primary">
-        <i class="fas fa-check"></i>
-        확인
-      </button>
-
-      <a href="javascript:history.back()" class="btn btn-primary">
-        <i class="fas fa-undo"></i>
-        취소
-      </a>
+      {% submit_button %}
+      {% cancel_button %}
     </form>
   </div>
 {% endblock %}

@@ -41,7 +41,7 @@ class PostLV(generic.ListView):
     context = super().get_context_data()
     context['page'] = self.request.GET.get('page', 1)
     context['categories'] = Category.objects.all()
-    context['category'] = self.request.GET.get('category')
+    context['category'] = self.request.GET.get('category', '')
     context['keyword'] = self.request.GET.get('keyword', '')
     context['extra'] = f"category={context['category']}&keyword={context['keyword']}"
     return context
@@ -146,4 +146,5 @@ def post_like(request, id):
   return JsonResponse({'result': 'ok', 'count': post.like.count()})
 
 
-
+class CommentCV(generic.CreateView):
+  pass

@@ -1,0 +1,28 @@
+{% load avatar %}
+
+<div class="d-flex justify-content-between pb-2">
+  <div class="d-flex align-items-center">
+    {% avatar post.owner%}
+
+    <div class="ms-3">
+      <span class="me-3">
+        <i class="far fa-eye"></i>
+        {{post.view_count}}
+      </span>
+      {% if is_owner %}
+        <i id="ic-heart" class="far fa-heart text-danger"></i>
+      {% else %}
+        {% if like %}
+          <i id="ic-heart" class="fas fa-heart text-danger" onclick="toggleLike({{post.id}}, this)"></i>
+        {% else %}
+          <i id="ic-heart" class="far fa-heart text-danger" onclick="toggleLike({{post.id}}, this)"></i>
+        {% endif %}
+      {% endif %}
+      {{post.like.count}}
+    </div>
+  </div>
+  <div>
+    <i class="far fa-clock"></i>
+    {{post.created | date:'Y-m-d H:i'}}
+  </div>
+</div>

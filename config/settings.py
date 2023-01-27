@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'imagekit',
     'django_summernote',
     'api',
+    'common',
     'blog',
     'taggit',
 ]
