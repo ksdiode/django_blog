@@ -1,7 +1,11 @@
 from django.db import models
 from taggit.managers import TaggableManager
 from accounts.models import User
+from django.utils import timezone
 from django.urls import reverse
+from common.models import BaseDateModel
+
+
 
 class Category(models.Model):
   name = models.CharField('이름', max_length=128)
@@ -25,7 +29,6 @@ class Post(models.Model):
   created = models.DateTimeField('생성일', auto_now_add = True)
   updated = models.DateTimeField('수정일', auto_now = True)
   # image = models.ImageField(upload_to="images/%Y/%m/%d", storage=MediaStorage(), blank=True)
-
 
   class Meta:
     ordering = ["-id"]
@@ -57,45 +60,25 @@ class PostAttachFile(models.Model):
 
 
 
-class Comment(models.Model):
+class Comment(BaseDateModel):
   post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
   owner = models.ForeignKey(User, on_delete=models.CASCADE)
   content = models.TextField('내용')
-  
-  created = models.DateTimeField('생성일', auto_now_add = True)
-  updated = models.DateTimeField('수정일', auto_now = True)
-  
+  parent = models.ForeignKey('self' , null=True , blank=True , on_delete=models.CASCADE , related_name='replies')
+
   class Meta:
     ordering = ["-id"]
 
-  def get_detail_url(self):
-      return reverse("blog:detail", args=[str(self.id)])
-  
-  def get_update_url(self):
-      return reverse("blog:update", args=[str(self.id)])
-  
-  def __str__(self):
-    return f'{self.content}'
+  @property
+  def children(self):
+      return Comment.objects.filter(parent=self).reverse()
 
+  @property
+  def is_parent(self):
+      if self.parent is None:
+          return True
+      return False
 
-class Reply(models.Model):
-  post = models.ForeignKey(Post, on_delete=models.CASCADE)
-  comment = models.ForeignKey(Comment, related_name='replies', on_delete=models.CASCADE)
-  owner = models.ForeignKey(User, on_delete=models.CASCADE)
-  content = models.TextField('내용')
-  
-  created = models.DateTimeField('생성일', auto_now_add = True)
-  updated = models.DateTimeField('수정일', auto_now = True)
-  
-  class Meta:
-    ordering = ["-id"]
-
-  def get_detail_url(self):
-      return reverse("post:detail", args=[str(self.id)])
-  
-  def get_update_url(self):
-      return reverse("post:update", args=[str(self.id)])
-  
   def __str__(self):
     return f'{self.content}'
 

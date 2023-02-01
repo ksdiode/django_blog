@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load avatar %}
 
 {% block content %}
   <h1 class="my-3">{{post.title}}</h1>
@@ -21,8 +21,23 @@
 
   <hr>
   {% include 'parts/detail_comment_form.html' %}
+
+  {% include 'parts/detail_comment_list.html' %}
+  
+
+
 {% endblock %}
 
 {% block script %}
+
+  <script src="{% static 'javascript/api.js' %}"></script>
   <script src="{% static 'javascript/blog.js' %}"></script>
+  <script>
+    const postId = {{post.id}};
+    const token = '{{csrf_token}}';
+
+    commentBtn = document.getElementById('commentBtn')
+    commentBtn.onclick = ()=>create_comment('{{user.user_id}}', postId, token);
+        
+  </script>  
 {% endblock %}

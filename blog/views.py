@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import FileResponse
 from accounts.views import OwnerOnlyMixin
 from taggit.models import Tag
-from .models import Post, Category, PostAttachFile
+from .models import Post, Category, PostAttachFile, Comment
 from .forms import PostForm
 
 class PostLV(generic.ListView):
@@ -146,5 +146,28 @@ def post_like(request, id):
   return JsonResponse({'result': 'ok', 'count': post.like.count()})
 
 
-class CommentCV(generic.CreateView):
-  pass
+# Comment, Reply 처리
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
+from .models import Comment
+from .serializers import CommentSerializer
+
+class CommentViewSet(viewsets.ModelViewSet):
+  queryset = Comment.objects.all()
+  serializer_class = CommentSerializer
+  # permission_classes = (IsAuthenticated,)
+  # http_method_names = ['post', ]
+
+  @csrf_exempt
+  def create(self, request, *args, **kwargs):
+    self.request.data['post'] = kwargs['post_id']
+    self.request.data['owner'] = request.user.id
+    serializer = self.get_serializer(data=self.request.data)
+    
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED) 
+    else:
+      print(serializer.errors)
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 

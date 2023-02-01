@@ -2,20 +2,19 @@
 
 {% if user.is_authenticated and user != post.owner %}
 <div class="">
-  <form action={% url 'blog:comment_create' post.id %}>
-    <input type="hidden" name="page" value="{{request.GET.page}}">
-    <input type="hidden" name="category" value="{{request.GET.category}}">
-    <input type="hidden" name="keyword" value="{{request.GET.keyword}}">
-    <textarea class="form-control" style="height:100px" required="required"></textarea>
+  <div class="comment-panel bg-light p-2">
+    <textarea id="comment-content" class="form-control" style="height:100px" required="required">테스트</textarea>
     <div class="my-1 d-flex align-items-center justify-content-between">
       <div>
         {% avatar user %}
       </div>
-      <button type="submit" class="btn btn-outline-secondary py-0">
+      <button type="button" class="btn btn-outline-secondary py-0" id="commentBtn">
         <i class="fas fa-check"></i>
         등록
       </button>
     </div>
-  </form>
+  </div>
+
+  <div class="comment-list"></div>
 </div>
 {% endif %}

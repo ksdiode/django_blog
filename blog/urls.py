@@ -1,8 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework import routers
 from . import views
 
-app_name = 'blog'
+router = routers.DefaultRouter()
+router.register('comment', views.CommentViewSet)
 
+
+app_name = 'blog'
 urlpatterns = [
   path('', views.PostLV.as_view(), name='index'),
   path('detail/<int:pk>/', views.PostDV.as_view(), name='detail'),
@@ -13,6 +17,5 @@ urlpatterns = [
   path('download/<int:pk>', views.download, name='download'),
   path('like/<int:id>/', views.post_like, name='like'),
 
-  # 댓글
-  path('comment/<int:post_id>', views.CommentCV.as_view(), name='comment_create')
+  path('<int:post_id>/', include(router.urls))
 ]
