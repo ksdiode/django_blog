@@ -50,15 +50,13 @@ function getCommentTemplate(avatar, comment) {
       ${comment.content}
     </div>    
   </div>
-
-
   `;
 }
 
-async function create_comment(owner, postId, token) {
+async function addComment(owner, postId, token) {
   const content = document.getElementById('comment-content').value;
   const api = new Api('http://127.0.0.1:8000');
-  const path = `blog/${postId}/comment/`;
+  const path = `blog/comment/${postId}/`;
   const headers = { 'X-CSRFToken': token };
 
   const comment = await api.post(path, { content }, headers);
@@ -81,7 +79,7 @@ async function edit_comment(comment) {
   // return comment;
 }
 
-async function delete_comment(comment) {
+async function deleteComment(comment) {
   if (!confirm('삭제할까요?')) return;
 
   const api = new Api('http://127.0.0.1:8000');
@@ -100,40 +98,103 @@ function getCommentEditTemplate(content) {
   <div class="comment-edit-panel mt-2 bg-light p-2">
     <textarea class="form-control">${content}</textarea>
     <div class="d-flex justify-content-end mt-2">
-      <button type="button" class="comment-edit-btn btn btn-outline-secondary py-0">
-        <i class="fas fa-check comment-edit-btn"></i>등록</button>
+      <button type="button" class="comment-edit-cancel-btn btn btn-outline-secondary py-0">
+        취소</button>
+      <button type="button" class="comment-edit-btn btn btn-outline-secondary ms-1 py-0">
+        등록</button>
     </div>
   </div>
   `;
 }
 
-function showCommentEdit(comment) {
+function cancelCommentEdit() {
   const panel = document.querySelector('.comment-edit-panel');
   if (panel) {
-    // 기존 것 있다면 복원 후 제거
     const content = panel.querySelector('textarea').value;
     panel.parentElement.innerText = content;
   }
+}
 
+function showCommentEdit(comment) {
+  cancelCommentEdit();
   const body = comment.querySelector('.card-body');
   body.innerHTML = getCommentEditTemplate(body.innerText);
+}
+
+function getReplyEditTemplate(commentId, content) {
+  return `
+  <div class="reply-edit-panel mt-2 bg-light p-2" data-comment-id="${commentId}">
+    <textarea class="form-control" id="reply-textarea">${content}</textarea>
+    <div class="d-flex justify-content-end mt-2">
+      <button type="button" class="reply-edit-cancel-btn btn btn-outline-secondary py-0">취소</button>
+      <button type="button" class="reply-edit-btn btn btn-outline-secondary ms-1 py-0">등록</button>
+    </div>
+  </div>
+  `;
+}
+
+function cancelReplyEdit() {
+  const panel = document.querySelector('.reply-edit-panel');
+  if (panel) {
+    const content = panel.querySelector('textarea').value;
+    panel.parentElement.innerText = content;
+  }
+}
+
+function showReplyEdit(comment, self) {
+  cancelReplyEdit();
+  const template = getReplyEditTemplate(comment.dataset.commentId, '');
+  console.log(template);
+  const replyList = comment.querySelector('.reply-list');
+  replyList.innerHTML = template + replyList.innerHTML;
+}
+
+async function addReply(comment) {
+  const content = document.getElementById('reply-textarea').value;
+  const commentId = comment.dataset.commentId;
+  const api = new Api('http://127.0.0.1:8000');
+  const path = `blog/reply/${postId}/${commentId}/`;
+  const headers = { 'X-CSRFToken': token };
+  console.log(path, headers, content);
+  const reply = await api.post(path, { content }, headers);
+  console.log(reply);
+
+  // 확인 ?
+  // const template = getCommentTemplate(owner, comment);
+  // const commentList = document.getElementById('reply-list');
+  // const commentNode = document.createElement('div');
+  // commentNode.innerHTML = template;
+  // commentList.prepend(commentNode);
 }
 
 document.getElementById('comment-list').onclick = async function (e) {
   const comment = e.target.closest('.comment');
   // 댓글 수정 인터페이스 보이기
   if (e.target.classList.contains('comment-edit')) {
-    showCommentEdit(comment);
-  } else if (e.target.classList.contains('comment-edit-btn')) {
-    edit_comment(comment);
+    return showCommentEdit(comment);
   }
-
+  // 댓글 수정
+  else if (e.target.classList.contains('comment-edit-btn')) {
+    return addComment(comment);
+  }
+  // 댓글 수정 인터페이스 없애기
+  else if (e.target.classList.contains('comment-edit-cancel-btn')) {
+    cancelCommentEdit();
+  }
   // 댓글 삭제하기
-  if (e.target.classList.contains('comment-delete')) {
-    delete_comment(comment);
+  else if (e.target.classList.contains('comment-delete')) {
+    deleteComment(comment);
   }
-
   // 답글 인터페이스 보이기
-  if (e.target.classList.contains('comment-reply')) {
+  else if (e.target.classList.contains('comment-reply')) {
+    showReplyEdit(comment, e.target);
+  }
+  // 답글 인터페이스 없애기
+  else if (e.target.classList.contains('reply-edit-cancel-btn')) {
+    cancelReplyEdit();
+  }
+  // 답글 등록
+  else if (e.target.classList.contains('reply-edit-btn')) {
+    addReply(comment);
   }
 };

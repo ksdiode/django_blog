@@ -2,9 +2,10 @@ from django.urls import path, include
 from rest_framework import routers
 from . import views
 
-router = routers.DefaultRouter()
-router.register('comment', views.CommentViewSet)
-
+commentRouter = routers.DefaultRouter()
+commentRouter.register('', views.CommentViewSet)
+replyRouter = routers.DefaultRouter()
+replyRouter.register('', views.ReplyViewSet)
 
 app_name = 'blog'
 urlpatterns = [
@@ -16,6 +17,6 @@ urlpatterns = [
   path('tag/<str:tag>/', views.PostLV.as_view(), name='post_tag'), 
   path('download/<int:pk>', views.download, name='download'),
   path('like/<int:id>/', views.post_like, name='like'),
-
-  path('<int:post_id>/', include(router.urls))
+  path('comment/<int:post_id>/', include(commentRouter.urls)),
+  path('reply/<int:post_id>/<int:comment_id>/', include(replyRouter.urls))
 ]

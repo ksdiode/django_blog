@@ -3,41 +3,36 @@
 {% load avatar %}
 
 {% block content %}
-  <h1 class="my-3">{{post.title}}</h1>
+<h1 class="my-3">{{post.title}}</h1>
 
-  {% include 'parts/detail_post_info.html' %}
+{% include 'parts/detail_post_info.html' %}
 
-  {% include 'parts/detail_tag_list.html' %}
+{% include 'parts/detail_tag_list.html' %}
 
-  {% include 'parts/detail_attachment_list.html' %}
+{% include 'parts/detail_attachment_list.html' %}
 
-  <div class="mt-3">
-    {{post.content|safe}}
-  </div>
+<div class="mt-3"> {{post.content|safe}} </div>
 
-  <div class="mt-5">
-    {% include 'parts/detail_button_group.html' %}
-  </div>
+<div class="mt-5">
+  {% include 'parts/detail_button_group.html' %}
+</div>
 
-  <hr>
-  {% include 'parts/detail_comment_form.html' %}
+<hr>
+{% include 'parts/detail_comment_form.html' %}
 
-  {% include 'parts/detail_comment_list.html' %}
-  
-
+{% include 'parts/detail_comment_list.html' %}
 
 {% endblock %}
 
 {% block script %}
 
-  <script src="{% static 'javascript/api.js' %}"></script>
-  <script src="{% static 'javascript/blog.js' %}"></script>
-  <script>
-    const postId = {{post.id}};
-    const token = '{{csrf_token}}';
+<script src="{% static 'javascript/api.js' %}"></script>
+<script src="{% static 'javascript/blog.js' %}"></script>
+<script>
+  const postId = '{{post.id}}';
+  const token = '{{csrf_token}}';
 
-    commentBtn = document.getElementById('commentBtn')
-    commentBtn.onclick = ()=>create_comment('{{user.user_id}}', postId, token);
-        
-  </script>  
+  commentBtn = document.getElementById('commentBtn')
+  commentBtn.onclick = () => create_comment('{{user.user_id}}', postId, token);
+</script>
 {% endblock %}

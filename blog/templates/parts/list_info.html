@@ -4,7 +4,7 @@
     <select id="category" onchange="changeCategory({{page}}, '{{keyword}}')">
       <option>전체</option>
       {% for c in categories %}
-        <option {% if c.name == category %} selected="selected" {% endif %}>{{c.name}}</option>
+      <option {% if c.name == category %} selected="selected" {% endif %}>{{c.name}}</option>
       {% endfor %}
     </select>
   </div>

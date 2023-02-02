@@ -63,6 +63,7 @@ class PostDV(generic.DetailView):
       post.save()
       context['is_owner'] = False
     context['like'] = True if post.like.filter(user_id = self.request.user) else False
+    context['comments'] = post.comments.filter(parent__isnull=True )
 
     print(self.request.user.id, context['like'], context['is_owner'])
 
@@ -163,6 +164,26 @@ class CommentViewSet(viewsets.ModelViewSet):
   def create(self, request, *args, **kwargs):
     self.request.data['post'] = kwargs['post_id']
     self.request.data['owner'] = request.user.id
+    serializer = self.get_serializer(data=self.request.data)
+    
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED) 
+    else:
+      print(serializer.errors)
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+
+
+
+class ReplyViewSet(viewsets.ModelViewSet):
+  queryset = Comment.objects.all()
+  serializer_class = CommentSerializer
+
+  @csrf_exempt
+  def create(self, request, *args, **kwargs):
+    self.request.data['post'] = kwargs['post_id']
+    self.request.data['parent'] = kwargs['comment_id']
+    self.request.data['owner'] = request.user.id    
     serializer = self.get_serializer(data=self.request.data)
     
     if serializer.is_valid():
