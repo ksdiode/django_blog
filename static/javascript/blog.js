@@ -53,13 +53,13 @@ function getCommentTemplate(avatar, comment) {
   `;
 }
 
-async function addComment(owner, postId, token) {
+async function addComment(comment) {
   const content = document.getElementById('comment-content').value;
   const api = new Api('http://127.0.0.1:8000');
   const path = `blog/comment/${postId}/`;
   const headers = { 'X-CSRFToken': token };
 
-  const comment = await api.post(path, { content }, headers);
+  comment = await api.post(path, { content }, headers);
   console.log(comment);
 
   const template = getCommentTemplate(owner, comment);
@@ -149,22 +149,60 @@ function showReplyEdit(comment, self) {
   replyList.innerHTML = template + replyList.innerHTML;
 }
 
+function getReplyTemplate(reply, userId = '----') {
+  return `
+  <div class="card mt-3 border-0 reply" data-reply-id="${reply.id}" data-post-id="${reply.post}">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+      <div class="d-inline-flex align-items-center">
+        <img src="/media/avatar/${userId}" class="rounded-circle me-2" width="20" height="20">
+          ${userId}
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn py-0 px-1">
+          <i class="fas fa-edit reply-edit"></i></button>
+        <button type="button" class="btn py-0 px-1">
+          <i class="fas fa-trash-alt text-danger reply-delete"></i></button>
+      </div>
+    </div>
+    <div class="card-body ">
+      ${reply.content}
+    </div>
+  </div>
+  `;
+}
 async function addReply(comment) {
   const content = document.getElementById('reply-textarea').value;
   const commentId = comment.dataset.commentId;
+
   const api = new Api('http://127.0.0.1:8000');
   const path = `blog/reply/${postId}/${commentId}/`;
   const headers = { 'X-CSRFToken': token };
-  console.log(path, headers, content);
+
   const reply = await api.post(path, { content }, headers);
   console.log(reply);
 
-  // 확인 ?
-  // const template = getCommentTemplate(owner, comment);
-  // const commentList = document.getElementById('reply-list');
-  // const commentNode = document.createElement('div');
-  // commentNode.innerHTML = template;
-  // commentList.prepend(commentNode);
+  // 템플릿 추가
+  const panel = document.querySelector('.reply-edit-panel');
+  const replyList = panel.parentNode;
+  panel.remove();
+  const template = getReplyTemplate(reply);
+  replyList.innerHTML = template + replyList.innerHTML;
+}
+
+async function deleteReply(target) {
+  const reply = target.closest('.reply');
+  if (!confirm('삭제할까요?')) return;
+
+  const api = new Api('http://127.0.0.1:8000');
+  const path = `blog/reply/${postId}/${reply.dataset.commentId}/${reply.dataset.replyId}/`;
+  const headers = { 'X-CSRFToken': token };
+
+  const result = await api.remove(path, headers);
+  if (result.ok) {
+    reply.remove();
+  } else {
+    alert('삭제 실패');
+  }
 }
 
 document.getElementById('comment-list').onclick = async function (e) {
@@ -196,5 +234,9 @@ document.getElementById('comment-list').onclick = async function (e) {
   // 답글 등록
   else if (e.target.classList.contains('reply-edit-btn')) {
     addReply(comment);
+  }
+  // 답글 등록
+  else if (e.target.classList.contains('reply-delete-btn')) {
+    deleteReply(e.target);
   }
 };

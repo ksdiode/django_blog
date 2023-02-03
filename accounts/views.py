@@ -70,3 +70,15 @@ class UserProfileUpdateView(LoginRequiredMixin, generic.UpdateView):
     context['avatar'] = user.avatar
     return context
 
+
+from django.http import FileResponse
+from config import settings
+import os
+
+def avatar(request, user_id):
+  user = get_object_or_404(User, pk=user_id)
+  if user.avatar:
+    return FileResponse(user.avatar.file.open())
+  else:
+    f = os.path.join(settings.MEDIA_ROOT,'avatar/unknown.png')
+    return FileResponse(open(f, 'rb'))

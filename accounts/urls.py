@@ -12,5 +12,6 @@ urlpatterns = [
   path('logout/', auth_views.LogoutView.as_view(), name='logout'),
   path('profile/', UserProfileView.as_view(), name='profile'),  
   path('profile/edit/', UserProfileUpdateView.as_view(), name='profile_edit'), 
+  path('avatar/<int:user_id>', avatar, name='avatar'), 
   path('', include(auth_urls)),
 ]
