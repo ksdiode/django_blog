@@ -31,8 +31,11 @@
 <script>
   const postId = '{{post.id}}';
   const token = '{{csrf_token}}';
+  const ownerName = '{{user.user_id}}';
 
   commentBtn = document.getElementById('commentBtn')
-  commentBtn.onclick = () => create_comment('{{user.user_id}}', postId, token);
+  if (commentBtn) {
+    commentBtn.onclick = () => addComment('{{user.user_id}}');
+  }
 </script>
 {% endblock %}

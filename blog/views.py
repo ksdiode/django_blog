@@ -173,7 +173,9 @@ class CommentViewSet(viewsets.ModelViewSet):
       print(serializer.errors)
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
 
-
+  def update(self, request, *args, **kwargs):
+    kwargs['partial'] = True
+    return super().update(request, *args, **kwargs)
 
 class ReplyViewSet(viewsets.ModelViewSet):
   queryset = Comment.objects.all()
