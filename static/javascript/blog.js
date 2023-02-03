@@ -137,7 +137,6 @@ async function updateComment(comment) {
   const api = new Api('http://127.0.0.1:8000');
   const path = `blog/comment/${postId}/${comment.dataset.commentId}/`;
   const headers = { 'X-CSRFToken': token };
-  console.log(content, path, headers);
 
   await api.put(path, { content }, headers);
   const body = comment.querySelector('.card-body');
@@ -236,14 +235,65 @@ async function deleteReply(target) {
   }
 }
 
+// 답글 수정 화면 템플릿 얻기
+function getReplyEditTemplate(reply) {
+  return `
+  <div class="reply-edit-panel mt-2 bg-light p-2" 
+    data-comment-commentId="${reply.commentId}"
+    data-comment-replyId="${reply.replyId}">
+    <textarea class="form-control">${reply.content}</textarea>
+    <div class="d-flex justify-content-end mt-2">
+      <button type="button" class="reply-edit-cancel-btn btn btn-outline-secondary py-0">취소</button>
+      <button type="button" class="reply-edit-save-btn btn btn-outline-secondary ms-1 py-0">등록</button>
+    </div>
+  </div>
+  `;
+}
+
 // 답글 수정 화면 표시
-function showReplyEdit() {
-  console.log('showReplyEdit');
+function showReplyEdit(target) {
+  const reply = target.closest('.reply');
+  const replyId = reply.dataset.replyId;
+  const commentId = reply.dataset.commentId;
+  const body = reply.querySelector('.card-body');
+  const content = body.innerText;
+  reply.dataset.oldContent = content;
+
+  console.log(postId, commentId, replyId, content);
+  const template = getReplyEditTemplate({
+    postId,
+    commentId,
+    replyId,
+    content,
+  });
+  body.innerHTML = template;
 }
 // 답글 수정 화면 취소
-function cancelReplyEdit() {}
+function cancelReplyEdit(target) {
+  const reply = target.closest('.reply');
+  const content = reply.dataset.oldContent;
+  reply.querySelector('.card-body').innerText = content;
+  reply.dataset.oldContent = '';
+}
+
 // 답글 수정등록
-function updateReply() {}
+async function updateReply(target) {
+  console.log('updateReply');
+  const reply = target.closest('.reply');
+  const replyId = reply.dataset.replyId;
+  const commentId = reply.dataset.commentId;
+  const content = reply.querySelector('textarea').value;
+
+  // 수정 등록
+  const api = new Api('http://127.0.0.1:8000');
+  const path = `blog/reply/${postId}/${replyId}/${commentId}/`;
+  const headers = { 'X-CSRFToken': token };
+
+  const result = await api.put(path, { content }, headers);
+
+  reply.querySelector('.card-body').innerText = content;
+  reply.dataset.oldContent = '';
+}
 
 document.getElementById('comment-list').onclick = async function (e) {
   const comment = e.target.closest('.comment');
@@ -281,8 +331,14 @@ document.getElementById('comment-list').onclick = async function (e) {
   }
   // 답글 수정 인터페이스 보여 주기
   else if (e.target.classList.contains('reply-edit-btn')) {
-    showReplyEdit();
+    showReplyEdit(e.target);
   }
   // 답글 수정 인터페이스 취소
+  else if (e.target.classList.contains('reply-edit-cancel-btn')) {
+    cancelReplyEdit(e.target);
+  }
   // 답글 수정 등록
+  else if (e.target.classList.contains('reply-edit-save-btn')) {
+    updateReply(e.target);
+  }
 };

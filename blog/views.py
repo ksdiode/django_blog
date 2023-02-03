@@ -154,13 +154,19 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Comment
 from .serializers import CommentSerializer
 
+
+class EnablePartialUpdateMixin:
+  def update(self, request, *args, **kwargs):
+    kwargs['partial'] = True
+    return super().update(request, *args, **kwargs)
+
+
 class CommentViewSet(viewsets.ModelViewSet):
   queryset = Comment.objects.all()
   serializer_class = CommentSerializer
   # permission_classes = (IsAuthenticated,)
   # http_method_names = ['post', ]
 
-  @csrf_exempt
   def create(self, request, *args, **kwargs):
     self.request.data['post'] = kwargs['post_id']
     self.request.data['owner'] = request.user.id
@@ -177,11 +183,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     kwargs['partial'] = True
     return super().update(request, *args, **kwargs)
 
-class ReplyViewSet(viewsets.ModelViewSet):
+class ReplyViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
   queryset = Comment.objects.all()
   serializer_class = CommentSerializer
-
-  @csrf_exempt
+  
   def create(self, request, *args, **kwargs):
     self.request.data['post'] = kwargs['post_id']
     self.request.data['parent'] = kwargs['comment_id']

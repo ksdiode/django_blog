@@ -4,6 +4,5 @@ doskey makemigrations=python manage.py makemigrations $*
 doskey migrate=python manage.py migrate $*
 doskey django-app=python manage.py startapp $*
 doskey commit=git commit $*
-doskey push=git push -u orign main
-
+doskey push=git push -u origin main
 @echo on
